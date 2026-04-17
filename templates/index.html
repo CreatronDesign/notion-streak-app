@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Streak</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<div id="fire-container">
+<span id="fire-emoji">🔥</span>
+<img id="fire-img" src="/static/fire.gif">
+</div>
+
+<div id="streak">0</div>
+<div class="label">Day Streak</div>
+
+<div class="progress-ring">
+<svg width="120" height="120">
+<circle class="bg" cx="60" cy="60" r="54"/>
+<circle class="progress" cx="60" cy="60" r="54"/>
+</svg>
+<div id="progress-text">0%</div>
+</div>
+
+<div id="quote">KEEP GOING!</div>
+
+</div>
+
+<div id="popup">🎉 All tasks completed!</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="/static/script.js"></script>
+
+</body>
+</html>
