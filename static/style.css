@@ -67,9 +67,6 @@ body {
     width: 150px;
     height: 150px;
     margin: 10px auto 0 auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 svg {
@@ -79,14 +76,34 @@ svg {
     width: 150px;
     height: 150px;
     display: block;
+    overflow: visible;
     transform: rotate(-90deg);
+}
+
+/* VERY IMPORTANT */
+circle {
+    fill: none;
+    stroke-width: 10;
+    stroke-linecap: round;
+}
+
+.bg {
+    stroke: #ececec;
+}
+
+.progress {
+    stroke: #00c875;
+    stroke-dasharray: 408;
+    stroke-dashoffset: 408;
+    transition: 0.4s ease;
 }
 
 #progress-text {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 28px;
     font-weight: 700;
     line-height: 1;
