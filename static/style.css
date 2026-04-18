@@ -20,11 +20,11 @@ body {
     min-width: 340px;
 }
 
-/* Fire holder (fix centering) */
+/* Fire holder */
 #fire-container {
-    width: 120px;
+    width: 130px;
     height: 120px;
-    margin: 0 auto 8px auto;
+    margin: 0 auto 6px auto;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -51,7 +51,7 @@ body {
     font-size: 74px;
     font-weight: 700;
     line-height: 1;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 /* Label */
@@ -61,15 +61,21 @@ body {
     font-size: 15px;
 }
 
-/* Ring */
+/* Progress Ring */
 .progress-ring {
     position: relative;
     width: 150px;
     height: 150px;
-    margin: auto;
+    margin: 10px auto 0 auto;
 }
 
+/* Keep SVG centered */
 svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 150px;
+    height: 150px;
     transform: rotate(-90deg);
 }
 
@@ -79,10 +85,12 @@ circle {
     stroke-linecap: round;
 }
 
+/* Ring background */
 .bg {
     stroke: #ececec;
 }
 
+/* Green progress */
 .progress {
     stroke: #00c875;
     stroke-dasharray: 408;
@@ -90,19 +98,21 @@ circle {
     transition: 0.4s ease;
 }
 
-/* Percentage (keep old perfect centering method) */
+/* PERFECT center text */
 #progress-text {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 22px;
-    font-weight: 600;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    width: max-content;
 }
 
 /* Quote */
 #quote {
-    margin-top: 16px;
+    margin-top: 20px;
     color: #666;
     font-size: 14px;
 }
