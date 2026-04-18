@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 import requests
 from datetime import datetime, timedelta
+import calendar
 import os
 
 app = Flask(__name__)
@@ -16,8 +17,13 @@ headers = {
     "Content-Type": "application/json"
 }
 
-def get_today():
-    return (datetime.utcnow() + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
+IST = timedelta(hours=5, minutes=30)
+
+def today_dt():
+    return datetime.utcnow() + IST
+
+def today_str():
+    return today_dt().strftime("%Y-%m-%d")
 
 def get_data():
     url = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
@@ -29,75 +35,84 @@ def build_days(tasks):
 
     for task in tasks:
         props = task["properties"]
-
-        if props["Date & Time"]["date"] is None:
+        date_obj = props["Date & Time"]["date"]
+        if not date_obj:
             continue
 
-        date = props["Date & Time"]["date"]["start"][:10]
+        d = date_obj["start"][:10]
         done = props["Today's Work"]["checkbox"]
+        page_id = task["id"].replace("-", "")
 
-        days.setdefault(date, []).append(done)
+        if d not in days:
+            days[d] = {"checks": [], "page_id": page_id}
+
+        days[d]["checks"].append(done)
 
     return days
 
-def calculate_streak(days):
-    today = get_today()
+def success(day):
+    return len(day["checks"]) > 0 and all(day["checks"])
 
-    if today in days and all(days[today]):
-        current = datetime.strptime(today, "%Y-%m-%d")
-    else:
-        current = datetime.strptime(today, "%Y-%m-%d") - timedelta(days=1)
+def monthly_grid(days):
+    now = today_dt()
+    year = now.year
+    month = now.month
 
-    streak = 0
+    cal = calendar.Calendar(firstweekday=0)
+    grid = []
 
-    while True:
-        d = current.strftime("%Y-%m-%d")
+    for dt in cal.itermonthdates(year, month):
+        ds = dt.strftime("%Y-%m-%d")
+        in_month = dt.month == month
 
-        if d in days and all(days[d]):
-            streak += 1
-            current -= timedelta(days=1)
-        else:
-            break
+        state = "empty"
+        page = ""
 
-    return streak
+        if ds in days:
+            state = "active" if success(days[ds]) else "broken"
+            page = f"https://www.notion.so/{days[ds]['page_id']}"
 
-def build_heatmap(days):
-    heatmap = []
-    today = datetime.strptime(get_today(), "%Y-%m-%d")
+        grid.append({
+            "date": ds,
+            "day": dt.day,
+            "in_month": in_month,
+            "state": state,
+            "url": page
+        })
 
-    for i in range(41, -1, -1):   # last 42 days
-        d = (today - timedelta(days=i)).strftime("%Y-%m-%d")
+    return grid
 
-        if d in days and all(days[d]):
-            heatmap.append(1)
-        else:
-            heatmap.append(0)
+def yearly_counts(days):
+    now = today_dt()
+    year = now.year
+    out = []
 
-    return heatmap
+    for m in range(1,13):
+        count = 0
+        for d,v in days.items():
+            if d.startswith(f'{year}-{m:02d}') and success(v):
+                count += 1
+        out.append({"month": calendar.month_abbr[m], "count": count})
+
+    return out
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
-@app.route("/data")
-def data():
-    tasks = get_data()
-    today = get_today()
+@app.route("/realm")
+def realm():
+    return render_template("realm.html")
 
+@app.route("/realm-data")
+def realm_data():
+    tasks = get_data()
     days = build_days(tasks)
 
-    today_tasks = days.get(today, [])
-
-    total = len(today_tasks)
-    done = sum(today_tasks)
-    all_done = total > 0 and all(today_tasks)
-
     return jsonify({
-        "done": done,
-        "total": total,
-        "all_done": all_done,
-        "streak": calculate_streak(days),
-        "heatmap": build_heatmap(days)
+        "month": today_dt().strftime("%B %Y"),
+        "grid": monthly_grid(days),
+        "year": yearly_counts(days)
     })
 
 if __name__ == "__main__":
