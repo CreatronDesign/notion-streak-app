@@ -1,22 +1,30 @@
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background: #0f0f0f;
-    color: white;
+    background: transparent;
+    color: #111;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
+/* Main widget card */
 .container {
     text-align: center;
+    background: white;
+    padding: 24px 28px;
+    border-radius: 18px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+    border: 1px solid #f0f0f0;
+    min-width: 260px;
 }
 
+/* Fire */
 #fire-emoji {
     font-size: 70px;
     filter: grayscale(1);
-    opacity: 0.6;
+    opacity: 0.55;
 }
 
 #fire-img {
@@ -25,16 +33,22 @@ body {
     filter: drop-shadow(0 0 10px orange);
 }
 
+/* Streak Number */
 #streak {
     font-size: 60px;
-    font-weight: bold;
+    font-weight: 700;
+    line-height: 1;
+    margin-top: 4px;
 }
 
+/* Label */
 .label {
-    opacity: 0.6;
-    margin-bottom: 20px;
+    color: #777;
+    margin-bottom: 18px;
+    font-size: 15px;
 }
 
+/* Ring */
 .progress-ring {
     position: relative;
     width: 120px;
@@ -53,38 +67,47 @@ circle {
 }
 
 .bg {
-    stroke: #333;
+    stroke: #ececec;
 }
 
 .progress {
-    stroke: #00ff88;
+    stroke: #00c875;
     stroke-dasharray: 339;
     stroke-dashoffset: 339;
-    transition: 0.4s;
+    transition: 0.4s ease;
 }
 
+/* Percentage */
 #progress-text {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    font-size: 18px;
+    font-weight: 600;
 }
 
+/* Quote */
 #quote {
-    margin-top: 15px;
-    opacity: 0.7;
+    margin-top: 16px;
+    color: #666;
+    font-size: 14px;
 }
 
+/* Popup */
 #popup {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0);
-    background: #00ffcc;
-    color: black;
-    padding: 20px 30px;
-    border-radius: 12px;
-    transition: 0.3s;
+    background: #00e096;
+    color: white;
+    padding: 18px 26px;
+    border-radius: 14px;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    transition: 0.3s ease;
+    z-index: 999;
 }
 
 #popup.show {
