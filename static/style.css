@@ -20,7 +20,7 @@ body {
     min-width: 340px;
 }
 
-/* Fire holder (centers emoji + gif perfectly) */
+/* Fire holder */
 #fire-container {
     width: 120px;
     height: 120px;
@@ -30,7 +30,7 @@ body {
     align-items: center;
 }
 
-/* Inactive fire emoji */
+/* Inactive fire */
 #fire-emoji {
     font-size: 82px;
     filter: grayscale(1);
@@ -38,7 +38,7 @@ body {
     line-height: 1;
 }
 
-/* Active gif fire */
+/* Active fire gif */
 #fire-img {
     height: 120px;
     width: auto;
@@ -67,9 +67,15 @@ body {
     width: 150px;
     height: 150px;
     margin: 14px auto 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 svg {
+    position: absolute;
+    top: 0;
+    left: 0;
     transform: rotate(-90deg);
 }
 
@@ -90,12 +96,13 @@ circle {
     transition: 0.4s ease;
 }
 
-/* Percentage text */
+/* FIXED centered percentage */
 #progress-text {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 20px;
     font-weight: 600;
 }
