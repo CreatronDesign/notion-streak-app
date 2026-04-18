@@ -136,3 +136,23 @@ circle {
 #popup.show {
     transform: translate(-50%, -50%) scale(1);
 }
+
+#heatmap{
+    margin-top:18px;
+    display:grid;
+    grid-template-columns: repeat(7, 16px);
+    gap:6px;
+    justify-content:center;
+}
+
+.tile{
+    width:16px;
+    height:16px;
+    border-radius:4px;
+    background:#f1f1f1;
+}
+
+.tile.active{
+    background:#ff7a00;
+    box-shadow:0 0 8px rgba(255,122,0,.5);
+}

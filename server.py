@@ -7,7 +7,6 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-
 NOTION_TOKEN = os.environ.get("NOTION_TOKEN")
 DATABASE_ID = os.environ.get("DATABASE_ID")
 
@@ -25,7 +24,7 @@ def get_data():
     res = requests.post(url, headers=headers)
     return res.json().get("results", [])
 
-def calculate_streak(tasks):
+def build_days(tasks):
     days = {}
 
     for task in tasks:
@@ -39,21 +38,17 @@ def calculate_streak(tasks):
 
         days.setdefault(date, []).append(done)
 
+    return days
+
+def calculate_streak(days):
     today = get_today()
 
-    if today in days:
-        if all(days[today]):
-            start_date = datetime.strptime(today, "%Y-%m-%d")
-        else:
-            start_date = datetime.strptime(today, "%Y-%m-%d") - timedelta(days=1)
+    if today in days and all(days[today]):
+        current = datetime.strptime(today, "%Y-%m-%d")
     else:
-        if not days:
-            return 0
-        latest_day = max(days.keys())
-        start_date = datetime.strptime(latest_day, "%Y-%m-%d")
+        current = datetime.strptime(today, "%Y-%m-%d") - timedelta(days=1)
 
     streak = 0
-    current = start_date
 
     while True:
         d = current.strftime("%Y-%m-%d")
@@ -66,6 +61,20 @@ def calculate_streak(tasks):
 
     return streak
 
+def build_heatmap(days):
+    heatmap = []
+    today = datetime.strptime(get_today(), "%Y-%m-%d")
+
+    for i in range(41, -1, -1):   # last 42 days
+        d = (today - timedelta(days=i)).strftime("%Y-%m-%d")
+
+        if d in days and all(days[d]):
+            heatmap.append(1)
+        else:
+            heatmap.append(0)
+
+    return heatmap
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -75,18 +84,9 @@ def data():
     tasks = get_data()
     today = get_today()
 
-    today_tasks = []
+    days = build_days(tasks)
 
-    for t in tasks:
-        props = t["properties"]
-
-        if props["Date & Time"]["date"] is None:
-            continue
-
-        date = props["Date & Time"]["date"]["start"][:10]
-
-        if date == today:
-            today_tasks.append(props["Today's Work"]["checkbox"])
+    today_tasks = days.get(today, [])
 
     total = len(today_tasks)
     done = sum(today_tasks)
@@ -96,7 +96,8 @@ def data():
         "done": done,
         "total": total,
         "all_done": all_done,
-        "streak": calculate_streak(tasks)
+        "streak": calculate_streak(days),
+        "heatmap": build_heatmap(days)
     })
 
 if __name__ == "__main__":

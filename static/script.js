@@ -55,6 +55,14 @@ if (d.total > 0 && d.all_done) {
 }
 
 localStorage.setItem("lastState", lastState);
+let heat = document.getElementById("heatmap");
+heat.innerHTML = "";
+
+d.heatmap.forEach(v=>{
+    let box = document.createElement("div");
+    box.className = v ? "tile active" : "tile";
+    heat.appendChild(box);
+});
 
 })
 .catch(err => console.log(err));
