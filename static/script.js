@@ -55,23 +55,6 @@ if (d.total > 0 && d.all_done) {
 }
 
 localStorage.setItem("lastState", lastState);
-let heat = document.getElementById("heatmap");
-heat.innerHTML = "";
-
-d.heatmap.forEach((v,i)=>{
-
-    let box = document.createElement("div");
-
-    box.className = v ? "tile active" : "tile";
-
-    if(i === d.heatmap.length - 1){
-        box.classList.add("today");
-    }
-
-    box.title = v ? "Streak maintained" : "Missed day";
-
-    heat.appendChild(box);
-});
 
 })
 .catch(err => console.log(err));
