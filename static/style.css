@@ -61,7 +61,7 @@ body {
     font-size: 15px;
 }
 
-/* Progress Ring */
+/* Progress Ring holder */
 .progress-ring {
     position: relative;
     width: 150px;
@@ -69,13 +69,11 @@ body {
     margin: 10px auto 0 auto;
 }
 
-/* Keep SVG centered */
+/* FIX: svg normal flow + exact size */
 svg {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 150px;
     height: 150px;
+    display: block;
     transform: rotate(-90deg);
 }
 
@@ -98,7 +96,7 @@ circle {
     transition: 0.4s ease;
 }
 
-/* PERFECT center text */
+/* Perfect centered % */
 #progress-text {
     position: absolute;
     top: 50%;
@@ -107,7 +105,7 @@ circle {
     font-size: 28px;
     font-weight: 700;
     line-height: 1;
-    width: max-content;
+    white-space: nowrap;
 }
 
 /* Quote */
