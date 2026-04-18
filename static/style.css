@@ -64,8 +64,8 @@ body {
 /* Progress Ring holder */
 .progress-ring {
     position: relative;
-    width: 150px;
-    height: 150px;
+    width: 128px;
+    height: 173px;
     margin: 10px auto 0 auto;
 }
 
