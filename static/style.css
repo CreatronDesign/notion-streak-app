@@ -99,13 +99,14 @@ circle {
 /* Perfect centered % */
 #progress-text {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 28px;
     font-weight: 700;
     line-height: 1;
-    white-space: nowrap;
+    pointer-events: none;
 }
 
 /* Quote */
