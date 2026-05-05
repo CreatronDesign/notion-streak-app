@@ -72,16 +72,11 @@ def success(day):
 def calculate_streak(days):
     current = today_dt()
 
-    while True:
-        ds = current.strftime("%Y-%m-%d")
+    ds = current.strftime("%Y-%m-%d")
 
-        if ds in days and success(days[ds]):
-            break
-
-        current -= timedelta(days=1)
-
-        if (today_dt() - current).days > 365:
-            return 0
+# If today is missing OR not fully done → streak = 0
+if ds not in days or not success(days[ds]):
+    return 0
 
     streak = 0
 
