@@ -74,9 +74,9 @@ def calculate_streak(days):
 
     ds = current.strftime("%Y-%m-%d")
 
-# If today is missing OR not fully done → streak = 0
-if ds not in days or not success(days[ds]):
-    return 0
+    # If today is missing OR not fully done → streak = 0
+    if ds not in days or not success(days[ds]):
+        return 0
 
     streak = 0
 
