@@ -66,7 +66,7 @@ def success(day):
     return len(day["checks"]) > 0 and all(day["checks"])
 
 # -----------------------
-# COMPACT WIDGET LOGIC
+# STREAK LOGIC
 # -----------------------
 
 def calculate_streak(days):
@@ -74,7 +74,7 @@ def calculate_streak(days):
 
     ds = current.strftime("%Y-%m-%d")
 
-    # If today is missing OR not fully done → streak = 0
+    # strict streak: today must exist + be completed
     if ds not in days or not success(days[ds]):
         return 0
 
@@ -92,7 +92,7 @@ def calculate_streak(days):
     return streak
 
 # -----------------------
-# REALM WIDGET LOGIC
+# REALM (HEATMAP)
 # -----------------------
 
 def monthly_grid(days):
@@ -103,6 +103,8 @@ def monthly_grid(days):
     cal = calendar.Calendar(firstweekday=0)
     grid = []
 
+    today = today_str()
+
     for dt in cal.itermonthdates(year, month):
         ds = dt.strftime("%Y-%m-%d")
         in_month = dt.month == month
@@ -110,18 +112,16 @@ def monthly_grid(days):
         state = "empty"
         page = ""
 
-        today = today_str()
+        if ds in days:
+            if success(days[ds]):
+                state = "active"
+            else:
+                if ds < today:
+                    state = "broken"   # past missed
+                else:
+                    state = "empty"    # today/future
 
-if ds in days:
-    if success(days[ds]):
-        state = "active"
-    else:
-        if ds < today:
-            state = "broken"   # past → failed
-        else:
-            state = "empty"    # future/today → neutral
-
-    page = f"https://www.notion.so/{days[ds]['page_id']}"
+            page = f"https://www.notion.so/{days[ds]['page_id']}"
 
         grid.append({
             "date": ds,
