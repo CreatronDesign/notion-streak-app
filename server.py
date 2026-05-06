@@ -110,9 +110,18 @@ def monthly_grid(days):
         state = "empty"
         page = ""
 
-        if ds in days:
-            state = "active" if success(days[ds]) else "broken"
-            page = f"https://www.notion.so/{days[ds]['page_id']}"
+        today = today_str()
+
+if ds in days:
+    if success(days[ds]):
+        state = "active"
+    else:
+        if ds < today:
+            state = "broken"   # past → failed
+        else:
+            state = "empty"    # future/today → neutral
+
+    page = f"https://www.notion.so/{days[ds]['page_id']}"
 
         grid.append({
             "date": ds,
