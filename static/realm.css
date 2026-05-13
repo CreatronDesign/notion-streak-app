@@ -34,51 +34,229 @@ body{
 #grid{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    gap:8px;
+    gap:2px;
 }
 
 .tile{
+    position:relative;
+
     height:42px;
+
     border-radius:14px;
+
     display:flex;
     align-items:center;
     justify-content:center;
+
     font-weight:700;
+
     cursor:pointer;
     user-select:none;
-    transition:.18s ease;
+
+    transition:
+        transform .18s ease,
+        box-shadow .25s ease;
+
+    overflow:visible;
 }
 
-.tile:hover{ transform:translateY(-2px); }
+.tile:hover{
+    transform:translateY(-2px);
+}
+
+/* ---------------- */
+/* EMPTY */
+/* ---------------- */
 
 .empty{
     background:#f3f3f3;
     color:#aaa;
 }
 
+/* ---------------- */
+/* ACTIVE */
+/* ---------------- */
+
 .active{
+
     color:white;
-    background:linear-gradient(180deg,#ffcb63 0%, #ff9d00 35%, #ff6f00 100%);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.5), 0 0 10px rgba(255,140,0,.25);
+
+    background:
+    linear-gradient(
+        180deg,
+        #ffd76a 0%,
+        #ff9d00 38%,
+        #ff6200 100%
+    );
+
+    box-shadow:
+        0 0 14px rgba(255,140,0,.38),
+        0 0 34px rgba(255,100,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.45);
+
+    z-index:2;
+
+    animation:fireGlow 2.4s infinite alternate;
 }
 
+/* FIRE PULSE */
+
+@keyframes fireGlow{
+
+    from{
+        box-shadow:
+            0 0 10px rgba(255,140,0,.28),
+            0 0 22px rgba(255,90,0,.08),
+            inset 0 1px 0 rgba(255,255,255,.45);
+    }
+
+    to{
+        box-shadow:
+            0 0 18px rgba(255,140,0,.62),
+            0 0 42px rgba(255,90,0,.22),
+            inset 0 1px 0 rgba(255,255,255,.45);
+    }
+}
+
+/* ---------------- */
+/* CONNECTED TILES */
+/* ---------------- */
+
+.connect-left{
+    border-top-left-radius:6px;
+    border-bottom-left-radius:6px;
+}
+
+.connect-right{
+    border-top-right-radius:6px;
+    border-bottom-right-radius:6px;
+}
+
+/* LAVA BRIDGE */
+
+.active.connect-right::after{
+
+    content:'';
+
+    position:absolute;
+
+    right:-8px;
+    top:8px;
+
+    width:16px;
+    height:26px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #ff9d00,
+        #ff6200
+    );
+
+    border-radius:999px;
+
+    filter:blur(6px);
+
+    opacity:.95;
+
+    z-index:-1;
+}
+
+/* ---------------- */
+/* TODAY */
+/* ---------------- */
+
+.today.active{
+
+    transform:scale(1.08);
+
+    box-shadow:
+        0 0 24px rgba(255,170,0,.9),
+        0 0 50px rgba(255,120,0,.34),
+        inset 0 1px 0 rgba(255,255,255,.55);
+}
+
+/* FLAME PARTICLE */
+
+.today.active::before{
+
+    content:'';
+
+    position:absolute;
+
+    width:8px;
+    height:8px;
+
+    border-radius:50%;
+
+    background:#fff3b0;
+
+    top:-4px;
+
+    animation:ember 1.6s infinite ease-out;
+}
+
+@keyframes ember{
+
+    0%{
+        transform:
+            translateY(0)
+            scale(.8);
+
+        opacity:.9;
+    }
+
+    100%{
+        transform:
+            translateY(-12px)
+            scale(1.6);
+
+        opacity:0;
+    }
+}
+
+/* ---------------- */
+/* BROKEN */
+/* ---------------- */
+
 .broken{
+
     background:#ececec;
+
     position:relative;
+
     color:#999;
 }
 
 .broken:after{
+
     content:'';
+
     position:absolute;
+
     width:70%;
     height:2px;
+
     background:#9a9a9a;
+
     transform:rotate(-28deg);
 }
 
 .broken:hover{
     animation:shake .25s linear 1;
+}
+
+@keyframes shake{
+
+    0%{transform:translateX(0)}
+
+    25%{transform:translateX(-2px)}
+
+    50%{transform:translateX(2px)}
+
+    75%{transform:translateX(-2px)}
+
+    100%{transform:translateX(0)}
 }
 
 @keyframes shake{

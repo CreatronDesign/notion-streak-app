@@ -9,7 +9,16 @@ let grid = document.getElementById("grid");
 d.grid.forEach((x,i)=>{
 
     let div = document.createElement("div");
+
     div.className = "tile " + x.state;
+
+    // CONNECTED STREAKS
+    if(x.left) div.classList.add("connect-left");
+    if(x.right) div.classList.add("connect-right");
+
+    // TODAY TILE
+    if(x.today) div.classList.add("today");
+
     div.innerText = x.in_month ? x.day : "";
 
     if(x.url){
@@ -28,6 +37,7 @@ d.year.forEach(m=>{
 
     let fill = document.createElement("div");
     fill.className = "fill";
+
     fill.style.height = (10 + m.count*3) + "px";
 
     box.appendChild(fill);

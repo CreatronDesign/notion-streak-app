@@ -107,6 +107,7 @@ def monthly_grid(days):
     today = today_str()
 
     for dt in cal.itermonthdates(year, month):
+
         ds = dt.strftime("%Y-%m-%d")
         in_month = dt.month == month
 
@@ -114,22 +115,44 @@ def monthly_grid(days):
         page = ""
 
         if ds in days:
+
             if success(days[ds]):
                 state = "active"
+
             else:
                 if ds < today:
-                    state = "broken"   # past missed
+                    state = "broken"
                 else:
-                    state = "empty"    # today/future
+                    state = "empty"
 
             page = f"https://www.notion.so/{days[ds]['page_id']}"
+
+        # -------------------------
+        # CONNECTED STREAK LOGIC
+        # -------------------------
+
+        left = False
+        right = False
+
+        if state == "active":
+
+            prev_day = (dt - timedelta(days=1)).strftime("%Y-%m-%d")
+            next_day = (dt + timedelta(days=1)).strftime("%Y-%m-%d")
+
+            left = prev_day in days and success(days[prev_day])
+            right = next_day in days and success(days[next_day])
+
+        # -------------------------
 
         grid.append({
             "date": ds,
             "day": dt.day,
             "in_month": in_month,
             "state": state,
-            "url": page
+            "url": page,
+            "left": left,
+            "right": right,
+            "today": ds == today
         })
 
     return grid
