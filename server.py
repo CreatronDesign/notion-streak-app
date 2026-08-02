@@ -41,8 +41,18 @@ def get_data():
 def build_days(tasks):
     days = {}
 
-    for task in tasks:
+    for i, task in enumerate(tasks):
         props = task["properties"]
+
+        if "Date & Time" not in props:
+            print("=" * 80)
+            print("BAD PAGE FOUND")
+            print("Index:", i)
+            print("Page ID:", task["id"])
+            print("Properties:", list(props.keys()))
+            print(task)
+            print("=" * 80)
+            continue
 
         date_obj = props["Date & Time"]["date"]
         if not date_obj:
