@@ -26,40 +26,102 @@ IST = timedelta(hours=5, minutes=30)
 def today_dt():
     return datetime.utcnow() + IST
 
+
 def today_str():
     return today_dt().strftime("%Y-%m-%d")
+
 
 # -----------------------
 # NOTION DATA
 # -----------------------
 
 def get_data():
+    """
+    Fetch ALL pages from the database.
+    Supports pagination (100+ pages).
+    """
+
     url = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
-    res = requests.post(url, headers=headers)
-    return res.json().get("results", [])
+
+    results = []
+    start_cursor = None
+
+    while True:
+
+        payload = {}
+
+        if start_cursor:
+            payload["start_cursor"] = start_cursor
+
+        try:
+            res = requests.post(
+                url,
+                headers=headers,
+                json=payload,
+                timeout=20
+            )
+
+            res.raise_for_status()
+
+        except requests.RequestException as e:
+            print("Notion API Error:", e)
+            return []
+
+        data = res.json()
+
+        if "results" not in data:
+            print("Unexpected Notion response:")
+            print(data)
+            return []
+
+        results.extend(data["results"])
+
+        if not data.get("has_more"):
+            break
+
+        start_cursor = data.get("next_cursor")
+
+    return results
+
 
 def build_days(tasks):
+
     days = {}
 
     for i, task in enumerate(tasks):
-        props = task["properties"]
+
+        props = task.get("properties", {})
+
+        if not props:
+            print(f"Skipping page #{i}: no properties")
+            continue
 
         if "Date & Time" not in props:
             print("=" * 80)
             print("BAD PAGE FOUND")
             print("Index:", i)
-            print("Page ID:", task["id"])
+            print("Page ID:", task.get("id"))
             print("Properties:", list(props.keys()))
-            print(task)
             print("=" * 80)
             continue
 
-        date_obj = props["Date & Time"]["date"]
+        if "Today's Work" not in props:
+            print("=" * 80)
+            print("Missing Today's Work")
+            print("Index:", i)
+            print("Page ID:", task.get("id"))
+            print("=" * 80)
+            continue
+
+        date_obj = props["Date & Time"].get("date")
+
         if not date_obj:
             continue
 
         d = date_obj["start"][:10]
-        done = props["Today's Work"]["checkbox"]
+
+        done = props["Today's Work"].get("checkbox", False)
+
         page_id = task["id"].replace("-", "")
 
         if d not in days:
@@ -70,28 +132,35 @@ def build_days(tasks):
 
         days[d]["checks"].append(done)
 
+
     return days
 
+
 def success(day):
-    return len(day["checks"]) > 0 and all(day["checks"])
+    return (
+        len(day["checks"]) > 0
+        and all(day["checks"])
+    )
 
 # -----------------------
 # STREAK LOGIC
 # -----------------------
 
 def calculate_streak(days):
+
     current = today_dt()
 
     today = current.strftime("%Y-%m-%d")
 
     # If today is incomplete,
-    # start counting from yesterday instead
+    # start counting from yesterday.
     if today not in days or not success(days[today]):
         current -= timedelta(days=1)
 
     streak = 0
 
     while True:
+
         ds = current.strftime("%Y-%m-%d")
 
         if ds in days and success(days[ds]):
@@ -102,16 +171,20 @@ def calculate_streak(days):
 
     return streak
 
+
 # -----------------------
 # REALM (HEATMAP)
 # -----------------------
 
 def monthly_grid(days):
+
     now = today_dt()
+
     year = now.year
     month = now.month
 
     cal = calendar.Calendar(firstweekday=0)
+
     grid = []
 
     today = today_str()
@@ -119,6 +192,7 @@ def monthly_grid(days):
     for dt in cal.itermonthdates(year, month):
 
         ds = dt.strftime("%Y-%m-%d")
+
         in_month = dt.month == month
 
         state = "empty"
@@ -130,15 +204,19 @@ def monthly_grid(days):
                 state = "active"
 
             else:
+
                 if ds < today:
                     state = "broken"
                 else:
                     state = "empty"
 
-            page = f"https://www.notion.so/{days[ds]['page_id']}"
+            page = (
+                f"https://www.notion.so/"
+                f"{days[ds]['page_id']}"
+            )
 
         # -------------------------
-        # CONNECTED STREAK LOGIC
+        # Connected streak logic
         # -------------------------
 
         left = False
@@ -146,13 +224,23 @@ def monthly_grid(days):
 
         if state == "active":
 
-            prev_day = (dt - timedelta(days=1)).strftime("%Y-%m-%d")
-            next_day = (dt + timedelta(days=1)).strftime("%Y-%m-%d")
+            prev_day = (
+                dt - timedelta(days=1)
+            ).strftime("%Y-%m-%d")
 
-            left = prev_day in days and success(days[prev_day])
-            right = next_day in days and success(days[next_day])
+            next_day = (
+                dt + timedelta(days=1)
+            ).strftime("%Y-%m-%d")
 
-        # -------------------------
+            left = (
+                prev_day in days
+                and success(days[prev_day])
+            )
+
+            right = (
+                next_day in days
+                and success(days[next_day])
+            )
 
         grid.append({
             "date": ds,
@@ -167,16 +255,25 @@ def monthly_grid(days):
 
     return grid
 
+
 def yearly_counts(days):
+
     now = today_dt()
+
     year = now.year
+
     out = []
 
     for m in range(1, 13):
+
         count = 0
 
         for d, v in days.items():
-            if d.startswith(f"{year}-{m:02d}") and success(v):
+
+            if (
+                d.startswith(f"{year}-{m:02d}")
+                and success(v)
+            ):
                 count += 1
 
         out.append({
@@ -194,12 +291,15 @@ def yearly_counts(days):
 def home():
     return render_template("index.html")
 
+
 @app.route("/data")
 def data():
+
     tasks = get_data()
     days = build_days(tasks)
 
     today = today_str()
+
     today_tasks = days.get(today, {"checks": []})["checks"]
 
     total = len(today_tasks)
@@ -213,12 +313,15 @@ def data():
         "streak": calculate_streak(days)
     })
 
+
 @app.route("/realm")
 def realm():
     return render_template("realm.html")
 
+
 @app.route("/realm-data")
 def realm_data():
+
     tasks = get_data()
     days = build_days(tasks)
 
@@ -228,7 +331,22 @@ def realm_data():
         "year": yearly_counts(days)
     })
 
+
+# -----------------------
+# START SERVER
 # -----------------------
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
+    port = int(os.environ.get("PORT", 5000))
+
+    print("=" * 60)
+    print("Notion Streak App")
+    print("Database ID:", DATABASE_ID)
+    print("Port:", port)
+    print("=" * 60)
+
+    app.run(
+        host="0.0.0.0",
+        port=port
+    )
